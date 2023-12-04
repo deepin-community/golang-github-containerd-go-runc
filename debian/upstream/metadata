@@ -1,0 +1,4 @@
+Bug-Database: https://github.com/containerd/go-runc/issues
+Bug-Submit: https://github.com/containerd/go-runc/issues/new
+Repository: https://github.com/containerd/go-runc.git
+Repository-Browse: https://github.com/containerd/go-runc
