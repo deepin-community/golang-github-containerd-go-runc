@@ -19,8 +19,8 @@ package runc
 import (
 	"context"
 	"errors"
-	"io/ioutil"
 	"os"
+	"os/exec"
 	"sync"
 	"syscall"
 	"testing"
@@ -30,7 +30,6 @@ import (
 )
 
 func TestParseVersion(t *testing.T) {
-
 	testParseVersion := func(t *testing.T, input string, expected Version) {
 		actual, err := parseVersion([]byte(input))
 		if err != nil {
@@ -291,7 +290,7 @@ func interrupt(ctx context.Context, t *testing.T, started <-chan int) {
 // dummySleepRunc creates s simple script that just runs `sleep 10` to replace
 // runc for testing process that are longer running.
 func dummySleepRunc() (_ string, err error) {
-	fh, err := ioutil.TempFile("", "*.sh")
+	fh, err := os.CreateTemp("", "*.sh")
 	if err != nil {
 		return "", err
 	}
@@ -308,9 +307,52 @@ func dummySleepRunc() (_ string, err error) {
 	if err != nil {
 		return "", err
 	}
-	err = os.Chmod(fh.Name(), 0755)
+	err = os.Chmod(fh.Name(), 0o755)
 	if err != nil {
 		return "", err
 	}
 	return fh.Name(), nil
+}
+
+func TestCreateArgs(t *testing.T) {
+	o := &CreateOpts{}
+	args, err := o.args()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(args) != 0 {
+		t.Fatal("args should be empty")
+	}
+	o.ExtraArgs = []string{"--other"}
+	args, err = o.args()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(args) != 1 {
+		t.Fatal("args should have 1 arg")
+	}
+	if a := args[0]; a != "--other" {
+		t.Fatalf("arg should be --other but got %q", a)
+	}
+}
+
+func TestRuncFeatures(t *testing.T) {
+	ctx := context.Background()
+	if _, err := exec.LookPath(DefaultCommand); err != nil {
+		t.Skipf("%q was not found in PATH", DefaultCommand)
+	}
+	runc := &Runc{}
+	feat, err := runc.Features(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var rroPresent bool
+	for _, f := range feat.MountOptions {
+		if f == "rro" {
+			rroPresent = true
+		}
+	}
+	if !rroPresent {
+		t.Fatalf("\"rro\" was not found in feat.MountOptions (feat=%+v)", feat)
+	}
 }
