@@ -1,3 +1,20 @@
+golang-github-containerd-go-runc (1.1.0-2) unstable; urgency=medium
+
+  * Team upload
+  * Upload changes from experimental to unstable
+  * d/control:
+    - Update Standards-Version to 4.7.0 (no changes needed)
+    - Add Multi-Arch: foreign
+
+ -- Mathias Gibbens <gibmat@debian.org>  Fri, 26 Jul 2024 01:09:08 +0000
+
+golang-github-containerd-go-runc (1.1.0-1) experimental; urgency=medium
+
+  * Team upload.
+  * New upstream version 1.1.0
+
+ -- Reinhard Tartler <siretart@tauware.de>  Wed, 19 Jun 2024 11:37:22 -0400
+
 golang-github-containerd-go-runc (1.0.0-1) unstable; urgency=medium
 
   * Team upload.
